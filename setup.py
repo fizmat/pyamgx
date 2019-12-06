@@ -25,6 +25,9 @@ else:
         os.path.join(AMGX_DIR, 'core/include')
     ]
 
+mpi_compile_args = os.popen("mpicc --showme:compile").read().strip().split(' ')
+mpi_link_args = os.popen("mpicc --showme:link").read().strip().split(' ')
+
 from Cython.Build import cythonize
 ext = cythonize([
     Extension(
@@ -33,6 +36,8 @@ ext = cythonize([
         depends=['pyamgx/*.pyx, pyamgx/*.pxi'],
         libraries=['amgxsh'],
         language='c',
+        extra_compile_args=mpi_compile_args,
+        extra_link_args=mpi_link_args,
         include_dirs = [
             numpy.get_include(),
         ] + AMGX_include_dirs,
