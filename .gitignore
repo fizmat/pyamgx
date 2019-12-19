@@ -109,3 +109,6 @@ venv.bak/
 .logamgx
 
 pyamgx/pyamgx.c
+
+# pycharm
+.idea
