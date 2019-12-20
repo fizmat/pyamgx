@@ -44,6 +44,17 @@ cdef class Matrix:
         check_error(AMGX_matrix_create(&self.mtx, rsrc.rsrc, asMode(mode)))
         return self
 
+    def comm_from_maps(self, int allocated_halo_depth, int num_import_rings,
+                       int max_num_neighbors, int[:] neighbors,
+                       int[:] send_ptrs, int[:] send_maps,
+                       int[:] recv_ptrs, int[:] recv_maps):
+        check_error(AMGX_matrix_comm_from_maps(self.mtx,
+                                               allocated_halo_depth, num_import_rings,
+                                               max_num_neighbors, &neighbors[0],
+                                               &send_ptrs[0], &send_maps[0],
+                                               &recv_ptrs[0], &recv_maps[0]))
+        return self
+
     def upload(self, int[:] row_ptrs, int[:] col_indices,
                double[:] data, block_dims=[1, 1]):
         """
@@ -88,6 +99,32 @@ cdef class Matrix:
             nrows, nnz, block_dimx, block_dimy,
             &row_ptrs[0], &col_indices[0],
             &data[0], NULL))
+
+        return self
+
+    def upload_global(self, int[:] row_ptrs, int[:] col_indices,
+                      double[:] data, int halo_depth=1, block_dims=[1, 1],
+                      int[:] partition_vector=None):
+        cdef int block_dimx, block_dimy
+        cdef int *pv
+        pv = NULL if partition_vector is None else &partition_vector[0]
+
+        block_dimx = block_dims[0]
+        block_dimy = block_dims[1]
+
+        nnz = len(data)
+        nrows = len(row_ptrs) - 1
+        ncols = max(col_indices) + 1
+
+        if nrows != ncols:
+            raise ValueError, "Matrix is not square, has shape ({}, {})".format(nrows, ncols)
+
+        check_error(AMGX_matrix_upload_all_global(
+            self.mtx,
+            nrows, nrows, nnz, block_dimx, block_dimy,
+            &row_ptrs[0], &col_indices[0],
+            &data[0], NULL,
+            halo_depth, halo_depth, NULL))
 
         return self
 

@@ -45,6 +45,10 @@ cdef class Vector:
         check_error(AMGX_vector_create(&self.vec, rsrc.rsrc, asMode(mode)))
         return self
 
+    def bind(self, Matrix matrix):
+        check_error(AMGX_vector_bind(self.vec, matrix.mtx))
+        return self
+
     def upload(self, double[:] data, block_dim=1):
         """
         v.upload(data, block_dim=1)

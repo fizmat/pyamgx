@@ -99,11 +99,25 @@ cdef extern from "amgx_c.h":
         const AMGX_matrix_handle mtx,
         int *nnz)
 
+    AMGX_RC AMGX_matrix_comm_from_maps(
+            AMGX_matrix_handle mtx,
+            int allocated_halo_depth, int num_import_rings,
+            int max_num_neighbors, const int *neighbors,
+            const int* send_ptrs, const int *send_maps,
+            const int* recv_ptrs, const int *recv_maps)
+
     AMGX_RC AMGX_matrix_upload_all(
         AMGX_matrix_handle mtx, int n, int nnz,
         int block_dimx, int block_dimy,
         const int *row_ptrs, const int *col_indices,
         const void *data, const void *diag_data)
+
+    AMGX_RC AMGX_matrix_upload_all_global(
+        AMGX_matrix_handle mtx, int n_global, int n, int nnz,
+        int block_dimx, int block_dimy,
+        const int *row_ptrs, const void *col_indices_global,
+        const void *data, const void *diag_data,
+        int allocated_halo_depth, int num_import_rings, const int *partition_vector)
 
     AMGX_RC AMGX_matrix_download_all(
         const AMGX_matrix_handle mtx,
@@ -116,6 +130,9 @@ cdef extern from "amgx_c.h":
     AMGX_RC AMGX_vector_create(
         AMGX_vector_handle *vec, AMGX_resources_handle rsc, AMGX_Mode mode)
     AMGX_RC AMGX_vector_destroy(AMGX_vector_handle vec)
+
+    AMGX_RC AMGX_vector_bind(
+        AMGX_vector_handle vec, AMGX_matrix_handle matrix)
 
     AMGX_RC AMGX_vector_upload(
         AMGX_vector_handle vec, int n, int block_dim,
