@@ -39,13 +39,15 @@ ext = cythonize([
         library_dirs = [
             numpy.get_include(),
         ] + AMGX_lib_dirs,
-        runtime_library_dirs = [
-            numpy.get_include(),
-        ] + AMGX_lib_dirs,
+        # runtime_library_dirs = [
+        #     numpy.get_include(),
+        # ] + AMGX_lib_dirs,
 )])
 
 setup(name='pyamgx',
       author='Ashwin Srinath',
       version='0.1',
       ext_modules = ext,
-      zip_safe=False)
+      zip_safe=False,
+      data_files=[('lib\\site-packages\\', [AMGX_BUILD_DIR + "\\amgxsh.dll"])]
+)
